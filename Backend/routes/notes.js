@@ -105,7 +105,7 @@ try{
 
   note = await Note.findByIdAndDelete(
     req.params.id);
-  res.send( "Success, note has been deleted" );
+  res.json( "Success, note has been deleted" );
 } catch (error) {
     console.error(error.message);
     res.status(500).send("Internal Server Error");

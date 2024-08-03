@@ -22,17 +22,18 @@ router.post(
     }),
   ],
   async (req, res) => {
+    let success = false;
     //if there are errors, return bad request and the errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({ success,errors: errors.array() });
     }
 
     //check if email already exists
     try {
       let user = await User.findOne({ email: req.body.email });
       if (user) {
-        return res.status(400).json({ errors: "Email already exists" });
+        return res.status(400).json({ success,errors: "Email already exists" });
       }
 
       const salt = await bcrypt.genSalt(10);
@@ -51,8 +52,8 @@ router.post(
       };
       const authtoken = jwt.sign(data, JWT_SECRET);
       //   console.log(authtoken);
-
-      res.json({ authtoken });
+      success=true;
+      res.json({success, authtoken });
     } catch (error) {
       console.error(error.message);
       res.status(500).send("Internal Server Error");
@@ -68,6 +69,8 @@ router.post(
     body("password", "Password cannot be blank").exists(),
   ],
   async (req, res) => {
+    let success = false;
+
     //if there are errors, return bad request and the errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -77,23 +80,28 @@ router.post(
     const { email, password } = req.body;
     try {
       let user = await User.findOne({ email });
-      if (!user)
+      if (!user){
         return res
           .status(400)
           .json({ error: "Please try to login with correct credentials." });
-      const passwordCompare = await bcrypt.compare(password, user.password);
-      if (!passwordCompare)
-        return res
-          .status(400)
-          .json({ error: "Please try to login with correct credentials." });
+          success = false;
 
+        }
+      const passwordCompare = await bcrypt.compare(password, user.password);
+      if (!passwordCompare){
+        return res
+          .status(400)
+          .json({success, error: "Please try to login with correct credentials." });
+          success = false;
+      }
       const data = {
         user: {
           id: user.id,
         },
       };
       const authtoken = jwt.sign(data, JWT_SECRET);
-      res.json({ authtoken });
+      success = true;
+      res.json({ authtoken, success });
     } catch (error) {
       console.error(error.message);
       res.status(500).send("Internal Server Error");
