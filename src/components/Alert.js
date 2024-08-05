@@ -2,10 +2,15 @@ import React from "react";
 
 function Alert(props) {
   const capitalize = (word) => {
+    if(word==="danger"){
+      word = "Error";
+    }
     const lower = word.toLowerCase();
     return lower.charAt(0).toUpperCase() + lower.slice(1);
   };
 
+  console.log("Alert Props:", props.alert);
+  
   return (
     <div style={{ height: "50px" }}>
       {props.alert && (
@@ -13,7 +18,7 @@ function Alert(props) {
           className={`alert alert-${props.alert.type} alert-dismissible fade show`}
           role="alert"
         >
-          <strong>{capitalize(props.alert.type)}</strong>: {props.alert.msg}
+          <strong>{capitalize(props.alert.type)}</strong>: {props.alert.message}
         </div>
       )}
     </div>

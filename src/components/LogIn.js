@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 const LogIn = (props) => {
     const [credentials, setCredentials] = useState({email: "", password: "",})
     let navigate = useNavigate();
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         const response = await fetch("http://localhost:8000/api/auth/login", {
@@ -13,15 +14,17 @@ const LogIn = (props) => {
               },
               body: JSON.stringify({email: credentials.email, password: credentials.password}),
           });
+
           const json = await response.json();
           console.log(json);
           if(json.success){
             //save the authtoken & redirect
-            localStorage.setItem('authtoken', json.token);
+            localStorage.setItem('token', json.authtoken);
+            props.showAlert("Logged In successfully", "success");
             navigate("/");
           }
           else{
-            alert('Invalid credentials');
+            props.showAlert("Invalid credentials", "danger");
           }
         };
 
@@ -30,7 +33,8 @@ const LogIn = (props) => {
       };
 
   return (
-    <div>
+    <div className="mt-3">
+      <h2>Login to continue to iNotebook</h2>
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
           <label htmlFor="exampleInputEmail1">Email address</label>
